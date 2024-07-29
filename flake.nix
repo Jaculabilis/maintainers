@@ -13,12 +13,12 @@
       system = "x86_64-linux";
     in
     {
+      lib = forAllSystems (system: import ./lib.nix { pkgs = nixpkgsFor.${system}; });
+
       bundlers = forAllSystems (
         system:
         let
-          pkgs = nixpkgsFor.${system};
-          lib = import ./lib.nix { inherit pkgs; };
-          inherit (lib) allMaintainers expandInput noMaintainers;
+          inherit (self.lib.${system}) allMaintainers expandInput noMaintainers;
         in
         {
           default = self.bundlers.${system}.unmaintained;
@@ -28,5 +28,14 @@
       );
 
       formatter = forAllSystems (system: nixpkgsFor.${system}.nixfmt-rfc-style);
+
+      checks = forAllSystems (
+        system:
+        import ./checks.nix {
+          inherit self;
+          inherit (nixpkgs.lib) nixosSystem;
+          pkgs = nixpkgsFor.${system};
+        }
+      );
     };
 }

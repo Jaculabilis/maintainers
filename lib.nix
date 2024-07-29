@@ -9,11 +9,7 @@ let
     tail
     ;
   inherit (pkgs) runCommandLocal writeText;
-  inherit (pkgs.lib)
-    concatLines
-    concatStringsSep
-    filter
-    ;
+  inherit (pkgs.lib) concatLines concatStringsSep filter;
   inherit (import ./closure.nix { inherit pkgs; }) drvClosure;
 in
 rec {
@@ -65,10 +61,7 @@ rec {
   expandInput =
     input:
     if (input.class or null == "nixos") && (input._type or null == "configuration") then
-      [
-        input.config.system.build.toplevel
-        input.config.environment.systemPackages
-      ]
+      [ input.config.system.build.toplevel ] ++ input.config.environment.systemPackages
     else
       input;
 }
